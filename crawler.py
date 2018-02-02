@@ -31,7 +31,7 @@ def download(filename, url, waitOnError = True):
 
 def remove_tag(line):
     newLine = re.sub("<[^>]+>", " ", line).strip()
-    newLine = re.sub(",", "", newLine).strip()
+    newLine = re.sub("(,|\.)", "", newLine).strip()
 
     return newLine
 
@@ -62,7 +62,7 @@ def extract_content(filename):
 def crawl_daily(code, last_date = None):
     content = {}
 
-    for page_index in range(999999):
+    for page_index in range(9999):
         url = DAILY_URL % (code, page_index + 1)
         download('./tmp.html', url)
         extracted = extract_content('./tmp.html')
@@ -87,24 +87,31 @@ def crawl_daily(code, last_date = None):
     return content
 
 def crawl_hourly(code, date):
-    content = []
+    content = {}
 
     for page_index in range(37):
         url = HOURLY_URL % (code, date, page_index + 1)
         download('./tmp.html', url)
-        extracted = dict_to_list(extract_content('./tmp.html'), reverse = True)
+        extracted = extract_content('./tmp.html')
 
         if len(extracted) > 0:
             print extracted
 
-            content += extracted
+            is_done = False
+            for k, v in extracted.items():
+                if content.get(k) is None:
+                    content[k] = v
+                else:
+                    is_done = True
+
+            if is_done:
+                break
         else:
             break
 
         time.sleep(INTERVAL)
 
-    content.reverse()
-    return content
+    return dict_to_list(content)
 
 def get_last_date(filename, n = 15):
     f = codecs.open(filename, 'r', 'utf-8')
@@ -118,12 +125,13 @@ def get_last_date(filename, n = 15):
     return dates[-n:]
 
 def append_data(filename, lines):
-    f = open(filename, 'a')
+    if len(lines) > 0:
+        f = open(filename, 'a')
 
-    for line in lines:
-        f.write(','.join(line) + '\n')
+        for line in lines:
+            f.write(','.join(line) + '\n')
 
-    f.close()
+        f.close()
 
 def dict_to_list(x, reverse = False):
     from operator import itemgetter
@@ -148,10 +156,10 @@ def run_crawler(codes, endless = False):
             append_data(fn, dict_to_list(crawl_daily(code, last_date = last_date)))
             time.sleep(INTERVAL)
 
-            dates = get_last_date(fn, n = 99999)
+            dates = get_last_date(fn, n = 6)
             for date in dates:
                 fn = HOURLY_PATH % (code, date)
-                
+
                 if not os.path.exists(HOURLY_DIR % code):
                     os.mkdir(HOURLY_DIR % code)
 
