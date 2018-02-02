@@ -1,4 +1,4 @@
-import sys, codecs, re, time, os
+import sys, codecs, re, time, os, datetime
 import urllib2
 
 HOURLY_URL = 'http://finance.naver.com/item/sise_time.nhn?code=%s&thistime=%s150000&page=%d'
@@ -125,6 +125,9 @@ def get_last_date(filename, n = 15):
     return dates[-n:]
 
 def append_data(filename, lines):
+    if is_market_open() and len(lines) > 0 and len(lines[0][0]) == 8:
+        lines = lines[:-1]
+
     if len(lines) > 0:
         f = open(filename, 'a')
 
@@ -174,6 +177,19 @@ def run_crawler(codes, endless = False):
             # check time
 
             time.sleep(50)
+
+def get_current_time():
+    now = datetime.datetime.now()
+
+    return now.hour, now.minute, now.second
+
+def is_market_open():
+    h, m, s = get_current_time()
+
+    if h >= 9 and (h < 15 or (h == 15 and m <= 30)):
+        return True
+
+    return False
 
 def get_codes(fn):
     codes = []
