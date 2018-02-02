@@ -1,2 +1,2 @@
-# korea_stock_market_crawler
-Crawling KOSPI and KOSDAQ stock price from Naver Stock
+# Korea Stock Market Price Crawler
+This repo contains a code for crawling stock market price from Naver Stock. Please, do not use this code for commercial usage. User has all responsible for all uses.
