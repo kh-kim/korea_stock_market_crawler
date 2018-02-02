@@ -89,7 +89,7 @@ def crawl_daily(code, last_date = None):
 def crawl_hourly(code, date):
     content = {}
 
-    for page_index in range(37):
+    for page_index in range(40):
         url = HOURLY_URL % (code, date, page_index + 1)
         download('./tmp.html', url)
         extracted = extract_content('./tmp.html')
