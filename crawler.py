@@ -8,7 +8,7 @@ HOURLY_PATH = './hourly/%s/%s.csv'
 HOURLY_DIR = './hourly/%s/'
 DAILY_PATH = './daily/%s.csv'
 
-INTERVAL = 1.5
+INTERVAL = 2.2
 
 def download(filename, url, waitOnError = True):
     while True:
@@ -174,9 +174,13 @@ def run_crawler(codes, endless = False):
             break
 
         while True:
-            # check time
+            h, m, s = get_current_time()
 
-            time.sleep(50)
+            if h >= 16:
+                break
+
+            print "Waiting... %02d:%02d:%02d" % (h, m, s)
+            time.sleep(60 * 10)
 
 def get_current_time():
     now = datetime.datetime.now()
@@ -206,4 +210,4 @@ def get_codes(fn):
 
 if __name__ == '__main__':
     codes = get_codes('./kospi.csv')
-    run_crawler(codes)
+    run_crawler(codes, True)
